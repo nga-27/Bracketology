@@ -1,0 +1,14 @@
+attributes/.DS_Store
+bracketology/.DS_Store
+bracketology/__pycache__/__init__.cpython-36.pyc
+bracketology/__pycache__/bBuilder.cpython-36.pyc
+bracketology/__pycache__/dataFramer.cpython-36.pyc
+bracketology/__pycache__/debug.cpython-36.pyc
+bracketology/__pycache__/jsonConv.cpython-36.pyc
+bracketology/__pycache__/jsonConv2.cpython-36.pyc
+engine/__pycache__/__init__.cpython-36.pyc
+engine/__pycache__/engine.cpython-36.pyc
+engine/__pycache__/randOnRank.cpython-36.pyc
+engine/__pycache__/templateAlgo.cpython-36.pyc
+heuristics/.DS_Store
+outputs/.DS_Store
