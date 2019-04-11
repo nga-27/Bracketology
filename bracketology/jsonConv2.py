@@ -28,6 +28,9 @@ import datetime
 def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=None, attrListOfDFs: list=None, 
     huerTypeList: list=None, heurListOfDFs: list=None):
 
+    if not os.path.exists("outputs/"):
+        os.mkdir("outputs/")
+
     jsonName = "outputs/" + bracketCSVFile.split(".")[0] + ".json"
     jsonSchemaFile = "schemas/" + jsonSchemaFile
     with open(jsonSchemaFile, encoding='utf-8') as dataFile:
