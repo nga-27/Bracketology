@@ -6,27 +6,29 @@
 #   JSON file: stores relevant attribute, heuristic, and bracket info
 #
 #
-#   Version:    0.1.0, 01-20-19
+#   Version:    0.1.1, 01-15-20
 #
-#   Nick Amell
+#   nga-27
 #
 #   Version History:
 #   -------------------------------------------------------------------------
 #   0.0.1, 12-16-18:    Initial JSON parsing/formatting w/ attributes
 #   0.0.2, 01-12-19:    Modified to handle new JSON format + heuristics
 #   0.1.0, 01-20-19:    Version 1.0 release
+#   0.1.1, 01-15-20:    Pylint Edits
 #############################################################################
 """
 import json
 from pprint import pprint
 import copy
 import os
-import pandas as pd 
-import numpy as np 
-import datetime 
+import pandas as pd
+import numpy as np
+import datetime
 
-def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=None, attrListOfDFs: list=None, 
-    huerTypeList: list=None, heurListOfDFs: list=None):
+
+def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list = None, attrListOfDFs: list = None,
+                   huerTypeList: list = None, heurListOfDFs: list = None):
 
     if not os.path.exists("outputs/"):
         os.mkdir("outputs/")
@@ -44,7 +46,7 @@ def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=
 
     data["DateModified"] = now.strftime("%Y-%m-%d %H:%M")
 
-    # Skip column 0, as it is the seeding number 
+    # Skip column 0, as it is the seeding number
     for j in range(len(bracketColumns)-1):
         j += 1
         region = str(bracketColumns[j])
@@ -52,19 +54,18 @@ def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=
         for i in range(bracketNumRows):
             data["Keys"].append(bracketCSV.values[i][j])
             data["Bracket"][bracketCSV.values[i][j]] = {
-                                            "Region": region, 
-                                            "RegionKey": str(j-1),
-                                            "Seed": str(i+1),
-                                            "Attributes": 
-                                                {}
-                                        }
-            
+                "Region": region,
+                "RegionKey": str(j-1),
+                "Seed": str(i+1),
+                "Attributes":
+                {}
+            }
 
     if (len(bracketColumns) - 1) == 4:
         """ Standard NCAA bracketing of 4 regions """
         data["Matchups"] = {
-            "SemiFinal1" : str(bracketColumns[1]) + " vs. " + str(bracketColumns[2]), 
-            "SemiFinal2" : str(bracketColumns[3]) + " vs. " + str(bracketColumns[4])
+            "SemiFinal1": str(bracketColumns[1]) + " vs. " + str(bracketColumns[2]),
+            "SemiFinal2": str(bracketColumns[3]) + " vs. " + str(bracketColumns[4])
         }
 
     ### Attribute addtions to the JSON file ###
@@ -74,14 +75,14 @@ def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=
             for j in range(len(attrTypeList)):
                 attrItem = attrTypeList[j]
                 df = attrListOfDFs[j]
-                
 
                 """ bracketColumns SHOULD MATCH any attribute value!!! """
                 for i in range(len(bracketColumns)-1):
                     i += 1
 
                     for k in range(bracketNumRows):
-                        data["Bracket"][bracketCSV.values[k][i]]["Attributes"][attrItem] = df.values[k][i]
+                        data["Bracket"][bracketCSV.values[k][i]
+                                        ]["Attributes"][attrItem] = df.values[k][i]
 
     ### Heuristic additions to the JSON file ###
     if (huerTypeList is not None) and (heurListOfDFs is not None):
@@ -106,16 +107,16 @@ def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=
                 data["Heuristics"]["Keys"].append(heurName)
 
                 for i in range(df.shape[0]):
-                    data["Heuristics"][heurName]["array"].append(list(df.values[i]))
+                    data["Heuristics"][heurName]["array"].append(
+                        list(df.values[i]))
 
-    #print(data["Heuristics"]["randOnRank"]["array"][0][2])
-    
+    # print(data["Heuristics"]["randOnRank"]["array"][0][2])
+
     with open(jsonName, 'w', encoding='utf-8') as f:
         json.dump(data, f)
 
     print("JSON file creation " + str(jsonName) + "... done.")
     return jsonName
-
 
 
 def ConvertToBracketLists2(jsonFile: str) -> list:
@@ -139,7 +140,6 @@ def ConvertToBracketLists2(jsonFile: str) -> list:
             region.append('')
         brackets.append(region)
 
-
     for i in range(4):
         for j in range(16):
 
@@ -148,12 +148,10 @@ def ConvertToBracketLists2(jsonFile: str) -> list:
             index = MapRankToIndex(rank)
             reg = int(data["Bracket"][team]["RegionKey"])
             brackets[reg][index] = team
-        
-
 
     finalFour = []
     brackets.append(finalFour)
-    #print(brackets)
+    # print(brackets)
     print("Create BracketLists... done.")
 
     return brackets

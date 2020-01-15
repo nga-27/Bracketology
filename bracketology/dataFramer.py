@@ -6,21 +6,23 @@
 #   Imports *.csv files and creates formatted dataframes for use in algorithms
 #
 #
-#   Version:    0.1.0, 01-20-19
+#   Version:    0.1.1, 01-15-20
 #
-#   Nick Amell
+#   nga-27
 #
 #   Version History:
 #   -------------------------------------------------------------------------
 #   0.0.1, 12-16-18:    Initial Dataframe importing for attributes
 #   0.0.2, 01-12-19:    Updated dataframe importing for attributes, added heuristics
 #   0.1.0, 01-20-19:    Version 1.0 release
+#   0.1.1, 01-15-20:    Pylint edits
 #############################################################################
 """
-import pandas as pd 
-import numpy as np 
+import pandas as pd
+import numpy as np
 
-def DataFrameLister(listOfFiles: list, listOfListsOfSheets: list=None):
+
+def DataFrameLister(listOfFiles: list, listOfListsOfSheets: list = None):
     """ Currently not supporting a list of sheets 
             ASSUME .CSV for now
     """
@@ -39,12 +41,12 @@ def DataFrameLister(listOfFiles: list, listOfListsOfSheets: list=None):
                 removals.append(j+MAX_REGION)
             df = df.drop(removals)
         listOfDFs.append(df)
-    
+
     print("Data imported for Attributes... done.")
     return listOfDFs
 
 
-def HeuristicDFLister(listOfFiles: list, listOfListOfSheets: list=None):
+def HeuristicDFLister(listOfFiles: list, listOfListOfSheets: list = None):
     """ Currently not supporting a list of sheets 
             ASSUME .CSV for now
     """

@@ -7,36 +7,36 @@
 #   from the picked and flattened (lists) bracket.
 #
 #
-#   Version:    0.1.0, 01-20-19
+#   Version:    0.1.0, 01-15-20
 #
-#   Nick Amell
+#   nga-27
 #
 #   Version History:
 #   -------------------------------------------------------------------------
 #   0.0.1, 01-12-18:    Flat bracket creator + DAG builder successful
 #   0.1.0, 01-20-19:    Version 1.0 released
+#   0.1.1, 01-15-20:    Pylint edits
 #############################################################################
 """
 
 from graphviz import Digraph
+
 
 def FlatBracketCreator(fullBracket: list):
     """ Function extends regions + final four to make listed locations for nodes """
 
     for i in range(4):
         region = fullBracket[i]
-        
-        for j in range(len(region)-1):
+
+        for _ in range(len(region)-1):
             region.append('b')
 
     # This will constitute the final four bracket.
-    for j in range(3):
+    for _ in range(3):
         fullBracket[4].append('a')
 
-    #print(fullBracket)
+    # print(fullBracket)
     return fullBracket
-
-
 
 
 def BuildDAG(bracketList: list):
@@ -54,7 +54,7 @@ def BuildDAG(bracketList: list):
             """ all teams entered to start - no edges.  Random numbering convention """
             nodeKey = "B" + str(i+1) + str(10+j)
             bracket.node(nodeKey, tRegion[j])
-            #print(nodeKey)
+            # print(nodeKey)
 
         reduceCount = 16
         for j in range(16, len(tRegion)):
@@ -66,7 +66,7 @@ def BuildDAG(bracketList: list):
             bracket.edge(nodeKey2, nodeKey)
             bracket.edge(nodeKey3, nodeKey)
             reduceCount -= 1
-    
+
     """ Final four bracket """
     for i in range(2):
         nodeKey = "B" + str(5) + str(10+i)

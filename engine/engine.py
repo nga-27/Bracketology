@@ -6,15 +6,16 @@
 #   Generic picking class that is fed by configurable algorithms.
 #
 #
-#   Version:    0.1.1, 01-27-19
+#   Version:    0.1.2, 01-15-20
 #
-#   Nick Amell
+#   nga-27
 #
 #   Version History:
 #   -------------------------------------------------------------------------
 #   0.0.1, 01-10-19:    Initial framework - PopulateBracket + MakePick
 #   0.1.0, 01-20-19:    Version 1.0 released
 #   0.1.1, 01-27-19:    Added round number for historical information
+#   0.1.2, 01-15-20:    Pylint auto edits
 #############################################################################
 """
 import json
@@ -29,7 +30,6 @@ from .templateAlgo import TemplateName
 """ Import custom algorithm (if not 'templateAlgo' above) here as examples above """
 
 
-
 ###################################################################
 ##      DO NOT EDIT BELOW THIS SECTION!!! (Internal-use only)    ##
 ###################################################################
@@ -40,7 +40,7 @@ def PopulateBracket(flatBracket: list, jsonFile: str) -> list:
         data = json.loads(dataFile.read())
 
     roundVal = 1
-    
+
     for i in range(4):
         nextGame = 16
         curGame = 0
@@ -59,7 +59,8 @@ def PopulateBracket(flatBracket: list, jsonFile: str) -> list:
             tA = flatBracket[i][curGame]
             tB = flatBracket[i][curGame+1]
 
-            tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
+            tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"]
+                          [tB], heuristic=data["Heuristics"], roundNum=roundVal)
 
             flatBracket[i][nextGame] = tC
 
@@ -70,32 +71,33 @@ def PopulateBracket(flatBracket: list, jsonFile: str) -> list:
     roundVal = 5
     tA = flatBracket[0][30]
     tB = flatBracket[1][30]
-    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
+    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"]
+                  [tB], heuristic=data["Heuristics"], roundNum=roundVal)
     flatBracket[4][0] = tC
 
     tA = flatBracket[2][30]
     tB = flatBracket[3][30]
-    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
+    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"]
+                  [tB], heuristic=data["Heuristics"], roundNum=roundVal)
     flatBracket[4][1] = tC
 
     roundVal = 6
     tA = flatBracket[4][0]
     tB = flatBracket[4][1]
-    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
+    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"]
+                  [tB], heuristic=data["Heuristics"], roundNum=roundVal)
     flatBracket[4][2] = tC
 
     return flatBracket
 
 
-
-
-def MakePick(teamA: str, teamB: str, teamAFull = None, teamBFull = None, heuristic = None, roundNum: int = 0) -> str:
+def MakePick(teamA: str, teamB: str, teamAFull=None, teamBFull=None, heuristic=None, roundNum: int = 0) -> str:
     """ 
         All inputs to this function are available for any configurable algorithm.
         "TeamXFull" variables refer to entire JSON object of team, including rank and attributes, 
         for customizable algorithm use.
     """
-    
+
     ###################################################################
     ##      USER-DEFINED ALGO CONFIGURED BELOW                       ##
     ###################################################################

@@ -12,3 +12,5 @@ engine/__pycache__/randOnRank.cpython-36.pyc
 engine/__pycache__/templateAlgo.cpython-36.pyc
 heuristics/.DS_Store
 outputs/
+venv
+__pycache__
