@@ -18,7 +18,7 @@
 #   0.1.0, 01-20-19:    Version 1.0 released
 #############################################################################
 """
-from bracketology import dataFramer, bBuilder, jsonConv2
+from bracketology import data_framer, bracket_builder, json_converter
 from engine import PopulateBracket 
 
 ###################################################################
@@ -49,20 +49,20 @@ heur = ["randOnRank.csv", "template.csv"]
 ###################################################################
 
 """ Frame any attributes """
-attDFs = dataFramer.DataFrameLister(attfiles)
+attDFs = data_framer.DataFrameLister(attfiles)
 
 """ Frame any heuristics (name of heuristic is derived from file name) """
-heurDFs = dataFramer.HeuristicDFLister(heur)
+heurDFs = data_framer.HeuristicDFLister(heur)
 
 """ Generate the bracket JSON file with optional attributes """
-jsonFile = jsonConv2.ConvertToJSON2("bracket_1.csv", "bracket_schema.json", atts, attDFs, heur, heurDFs)
+jsonFile = json_converter.ConvertToJSON2("bracket_1.csv", "bracket_schema.json", atts, attDFs, heur, heurDFs)
 
 """ Bracket conversion and building """
-bracket = jsonConv2.ConvertToBracketLists2(jsonFile)
-flatBrack = bBuilder.FlatBracketCreator(bracket)
+bracket = json_converter.ConvertToBracketLists2(jsonFile)
+flatBrack = bracket_builder.FlatBracketCreator(bracket)
 
 """ Algorithms operate on flatBrack [and 'jsonFile' if 'atts' is not empty] HERE """
 filledBracket = PopulateBracket(flatBrack, jsonFile)
 
 """ Output the DAG bracket """
-bBuilder.BuildDAG(filledBracket)
+bracket_builder.BuildDAG(filledBracket)
