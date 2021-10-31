@@ -18,7 +18,8 @@
 #   0.1.0, 01-20-19:    Version 1.0 released
 #############################################################################
 """
-from bracketology import data_framer, bracket_builder, json_converter
+from bracketology.data_framer import dataframe_importer, heuristic_dataframe_importer
+from bracketology import bracket_builder, json_converter
 from engine import PopulateBracket 
 
 ###################################################################
@@ -28,16 +29,13 @@ from engine import PopulateBracket
 """ Optional attributes and attribute files listed here. Examples: """
 """################################################################
 Examples:
-atts = ['confRecords', 'overallRecords']
-attfiles = ['confRecords2018.csv', 'overallRecords2018.csv']
+attribute_files = ['confRecords2018.csv', 'overallRecords2018.csv']
 ################################################################"""
 
-atts = []
-attfiles = []
-
+attribute_files = []
 
 """ Optional heuristics listed here """
-heur = ["randOnRank.csv", "template.csv"]
+heuristics = ["randOnRank.csv", "template.csv"]
 
 
 ###################################################################
@@ -51,17 +49,19 @@ heur = ["randOnRank.csv", "template.csv"]
 print("\r\nStarting...\r\n")
 
 """ Frame any attributes """
-attDFs = data_framer.dataframe_importer(attfiles)
+attribute_dict = dataframe_importer(attribute_files)
 
 """ Frame any heuristics (name of heuristic is derived from file name) """
-heurDFs = data_framer.heuristic_dataframe_importer(heur)
+heuristic_dict = heuristic_dataframe_importer(heuristics)
 
 """ Generate the bracket JSON file with optional attributes """
-jsonFile = json_converter.ConvertToJSON2("bracket_1.csv", "bracket_schema.json", atts, attDFs, heur, heurDFs)
+jsonFile = json_converter.generate_json_bracket(
+    "bracket_1.csv", "bracket_schema.json", attribute_dict, heuristic_dict
+)
 
 """ Bracket conversion and building """
 bracket = json_converter.ConvertToBracketLists2(jsonFile)
-flatBrack = bracket_builder.FlatBracketCreator(bracket)
+flatBrack = bracket_builder.flat_bracket_creator(bracket)
 
 """ Algorithms operate on flatBrack [and 'jsonFile' if 'atts' is not empty] HERE """
 filledBracket = PopulateBracket(flatBrack, jsonFile)

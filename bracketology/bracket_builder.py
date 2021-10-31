@@ -1,40 +1,31 @@
-"""
-#############################################################################
-#
-#   bBuilder.py
-#
-#   File to fill flatbrackets (i.e. lists) and generate a DAG bracket representation
-#   from the picked and flattened (lists) bracket.
-#
-#
-#   Version:    0.1.0, 01-20-19
-#
-#   Nick Amell
-#
-#   Version History:
-#   -------------------------------------------------------------------------
-#   0.0.1, 01-12-18:    Flat bracket creator + DAG builder successful
-#   0.1.0, 01-20-19:    Version 1.0 released
-#############################################################################
+"""bracket_builder.py
+
+    File to fill flatbrackets (i.e. lists) and generate a DAG bracket representation from the picked
+    and flattened (lists) bracket.
 """
 
 from graphviz import Digraph
 
-def FlatBracketCreator(fullBracket: list):
-    """ Function extends regions + final four to make listed locations for nodes """
+def flat_bracket_creator(full_bracket: list):
+    """flat_brakcet_creator
+    
+    Function extends regions + final four to make listed locations for nodes
 
+    Args:
+        full_bracket (list): 
+    
+    """
     for i in range(4):
-        region = fullBracket[i]
+        region = full_bracket[i]
         
-        for j in range(len(region)-1):
+        for _ in range(len(region)-1):
             region.append('b')
 
     # This will constitute the final four bracket.
     for j in range(3):
-        fullBracket[4].append('a')
+        full_bracket[4].append('a')
 
-    #print(fullBracket)
-    return fullBracket
+    return full_bracket
 
 
 

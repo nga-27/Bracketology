@@ -19,102 +19,128 @@
 """
 import json
 from pprint import pprint
-import copy
+from pathlib import Path
 import os
-import pandas as pd 
-import numpy as np 
 import datetime 
 
-def ConvertToJSON2(bracketCSVFile: str, jsonSchemaFile: str, attrTypeList: list=None, attrListOfDFs: list=None, 
-    huerTypeList: list=None, heurListOfDFs: list=None):
+import pandas as pd 
 
-    if not os.path.exists("outputs/"):
-        os.mkdir("outputs/")
+MAP_RANK_TO_INDEX = {
+    "1": 0,
+    "2": 14,
+    "3": 8,
+    "4": 4,
+    "5": 6,
+    "6": 10,
+    "7": 12,
+    "8": 2,
+    "9": 3,
+    "10": 13,
+    "11": 11,
+    "12": 7,
+    "13": 5,
+    "14": 9,
+    "15": 15,
+    "16": 1
+}
 
-    jsonName = "outputs/" + bracketCSVFile.split(".")[0] + ".json"
-    jsonSchemaFile = "schemas/" + jsonSchemaFile
-    with open(jsonSchemaFile, encoding='utf-8') as dataFile:
+
+def generate_json_bracket(bracket_csv_file: str,
+                          json_schema_file: str,
+                          attribute_dict: dict, 
+                          heuristic_dict: dict) -> str:
+    """generate_json_bracket
+
+    Combine attributes, the bracket csv, and heuristics into a data-heavy json file
+
+    Args:
+        bracket_csv_file (str): file path
+        json_schema_file (str): file path for the template json file
+        attr_type_list (list, optional): list of attribute types. Defaults to None.
+        attr_df_list (list, optional): list of attribute files. Defaults to None.
+        hueristic_type_list (list, optional): list of heuristic types. Defaults to None.
+        heur_df_list (list, optional): list of heuristic files. Defaults to None.
+
+    Returns:
+        Path: output file path for the generated json file
+    """
+    output_dir = Path("outputs").resolve()
+    output_dir.mkdir(exist_ok=True)
+
+    json_file_name = Path(output_dir / f'{bracket_csv_file.split(".")[0]}.json').resolve()
+    schema_file = Path(f"schemas/{json_schema_file}").resolve()
+    with open(schema_file, encoding='utf-8') as dataFile:
         data = json.loads(dataFile.read())
 
     now = datetime.datetime.now()
 
-    bracketCSV = pd.read_csv(bracketCSVFile)
-    bracketColumns = bracketCSV.columns
-    bracketNumRows = bracketCSV.shape[0]
+    bracket_csv = pd.read_csv(bracket_csv_file)
+    bracket_columns = bracket_csv.columns
+    bracket_rows = bracket_csv.shape[0]
 
     data["DateModified"] = now.strftime("%Y-%m-%d %H:%M")
 
     # Skip column 0, as it is the seeding number 
-    for j in range(len(bracketColumns)-1):
+    for j in range(len(bracket_columns)-1):
         j += 1
-        region = str(bracketColumns[j])
+        region = str(bracket_columns[j])
 
-        for i in range(bracketNumRows):
-            data["Keys"].append(bracketCSV.values[i][j])
-            data["Bracket"][bracketCSV.values[i][j]] = {
-                                            "Region": region, 
-                                            "RegionKey": str(j-1),
-                                            "Seed": str(i+1),
-                                            "Attributes": 
-                                                {}
-                                        }
+        for i in range(bracket_rows):
+            data["Keys"].append(bracket_csv.values[i][j])
+            data["Bracket"][bracket_csv.values[i][j]] = {
+                "Region": region, 
+                "RegionKey": str(j-1),
+                "Seed": str(i+1),
+                "Attributes": {}
+            }
             
 
-    if (len(bracketColumns) - 1) == 4:
+    if (len(bracket_columns) - 1) == 4:
         """ Standard NCAA bracketing of 4 regions """
         data["Matchups"] = {
-            "SemiFinal1" : str(bracketColumns[1]) + " vs. " + str(bracketColumns[2]), 
-            "SemiFinal2" : str(bracketColumns[3]) + " vs. " + str(bracketColumns[4])
+            "SemiFinal1" : str(bracket_columns[1]) + " vs. " + str(bracket_columns[2]), 
+            "SemiFinal2" : str(bracket_columns[3]) + " vs. " + str(bracket_columns[4])
         }
 
     ### Attribute addtions to the JSON file ###
-    if (attrTypeList is not None) and (attrListOfDFs is not None):
-        if len(attrListOfDFs) == len(attrTypeList):
-            """ parse the df(s), store them in the json """
-            for j in range(len(attrTypeList)):
-                attrItem = attrTypeList[j]
-                df = attrListOfDFs[j]
-                
+    for attribute_name in attribute_dict:
+        # Parse the df(s), store them in the json
+        _df = attribute_dict[attribute_name]
 
-                """ bracketColumns SHOULD MATCH any attribute value!!! """
-                for i in range(len(bracketColumns)-1):
-                    i += 1
-
-                    for k in range(bracketNumRows):
-                        data["Bracket"][bracketCSV.values[k][i]]["Attributes"][attrItem] = df.values[k][i]
+        # bracketColumns SHOULD MATCH any attribute value!!!
+        for i in range(len(bracket_columns)-1):
+            i += 1
+            for k in range(bracket_rows):
+                data["Bracket"][bracket_csv.values[k][i]]["Attributes"][attribute_name] = \
+                    _df.values[k][i]
 
     ### Heuristic additions to the JSON file ###
-    if (huerTypeList is not None) and (heurListOfDFs is not None):
-        if len(huerTypeList) == len(heurListOfDFs):
-            data["Heuristics"]["Keys"] = []
+    for heuristic_name in heuristic_dict:
+        data["Heuristics"]["Keys"] = []
 
-            for j in range(len(huerTypeList)):
-                heurItem = huerTypeList[j]
-                df = heurListOfDFs[j]
-                heurName = heurItem.split(".")[0]
+        _df = heuristic_dict[heuristic_name]
 
-                if (df.shape[0] == 16):
-                    typeOfHeur = "H2H_table"
-                else:
-                    typeOfHeur = "SQL_table"
+        if (_df.shape[0] == 16):
+            type_of_heur = "H2H_table"
+        else:
+            type_of_heur = "SQL_table"
 
-                data["Heuristics"][heurName] = {
-                    "file": heurItem,
-                    "type": typeOfHeur,
-                    "array": []
-                }
-                data["Heuristics"]["Keys"].append(heurName)
+        data["Heuristics"][heuristic_name] = {
+            "file": f"{heuristic_name}.csv",
+            "type": type_of_heur,
+            "array": []
+        }
+        data["Heuristics"]["Keys"].append(heuristic_name)
 
-                for i in range(df.shape[0]):
-                    data["Heuristics"][heurName]["array"].append(list(df.values[i]))
+        for i in range(_df.shape[0]):
+            data["Heuristics"][heuristic_name]["array"].append(list(_df.values[i]))
 
     #print(data["Heuristics"]["randOnRank"]["array"][0][2])
-    
-    with open(jsonName, 'w', encoding='utf-8') as f:
-        json.dump(data, f)
+    json_fp = json_file_name.open('w')
+    json.dump(data, json_fp)
 
-    print("JSON file creation " + str(jsonName) + "... done.")
-    return jsonName
+    print(f"JSON file creation {json_file_name}... done.")
+    return json_file_name
 
 
 
@@ -144,12 +170,10 @@ def ConvertToBracketLists2(jsonFile: str) -> list:
         for j in range(16):
 
             team = data["Keys"][i * 16 + j]
-            rank = int(data["Bracket"][team]["Seed"])
-            index = MapRankToIndex(rank)
+            rank = data["Bracket"][team]["Seed"]
+            index = MAP_RANK_TO_INDEX[rank]
             reg = int(data["Bracket"][team]["RegionKey"])
             brackets[reg][index] = team
-        
-
 
     finalFour = []
     brackets.append(finalFour)
@@ -157,38 +181,3 @@ def ConvertToBracketLists2(jsonFile: str) -> list:
     print("Create BracketLists... done.")
 
     return brackets
-
-
-def MapRankToIndex(rank: int) -> int:
-    if rank == 1:
-        return 0
-    elif rank == 2:
-        return 14
-    elif rank == 3:
-        return 8
-    elif rank == 4:
-        return 4
-    elif rank == 5:
-        return 6
-    elif rank == 6:
-        return 10
-    elif rank == 7:
-        return 12
-    elif rank == 8:
-        return 2
-    elif rank == 9:
-        return 3
-    elif rank == 10:
-        return 13
-    elif rank == 11:
-        return 11
-    elif rank == 12:
-        return 7
-    elif rank == 13:
-        return 5
-    elif rank == 14:
-        return 9
-    elif rank == 15:
-        return 15
-    elif rank == 16:
-        return 1
