@@ -1,105 +1,122 @@
-"""
-#############################################################################
-#
-#   engine.py
-#
-#   Generic picking class that is fed by configurable algorithms.
-#
-#
-#   Version:    0.1.1, 01-27-19
-#
-#   Nick Amell
-#
-#   Version History:
-#   -------------------------------------------------------------------------
-#   0.0.1, 01-10-19:    Initial framework - PopulateBracket + MakePick
-#   0.1.0, 01-20-19:    Version 1.0 released
-#   0.1.1, 01-27-19:    Added round number for historical information
-#############################################################################
+"""engine.py
+
+    Generic picking class that is fed by configurable algorithms.
 """
 import json
+from pathlib import Path
 
 ### ALGORITHM CHOICE(S) IMPORTS HERE ###
-from .randOnRank import RandomOnRank
-from .templateAlgo import TemplateName
+from .random_on_rank import random_on_rank
+from .template_algorithm import template_name
 
-###################################################################
-##      USER-DEFINED IMPORT CONFIGURED HERE (and farther below)  ##
-###################################################################
-""" Import custom algorithm (if not 'templateAlgo' above) here as examples above """
-
+########################################################################################
+##          USER-DEFINED IMPORT CONFIGURED HERE (and farther below)                   ##
+## Import custom algorithm (if not 'template_algorithm' above) here as examples above ##
+########################################################################################
 
 
 ###################################################################
 ##      DO NOT EDIT BELOW THIS SECTION!!! (Internal-use only)    ##
 ###################################################################
-def PopulateBracket(flatBracket: list, jsonFile: str) -> list:
-    """ Uses MakePick and algorithms below to fill in bracket with picks """
+def populate_bracket(flat_bracket: list, json_file: Path) -> list:
+    """populate_bracket
+    
+    Uses MakePick and algorithms below to fill in bracket with picks
+    
+    Args:
+        flat_bracket (list): bracket object represented as a "flat" list
+        json_file (Path): data-loaded json file for the bracket
 
-    with open(jsonFile, encoding='utf-8') as dataFile:
-        data = json.loads(dataFile.read())
-
-    roundVal = 1
+    Returns:
+        list: filled out bracket with picked winners, etc.
+    """
+    data = json.load(json_file.open('r'))
+    round_val = 1
     
     for i in range(4):
-        nextGame = 16
-        curGame = 0
-
-        while (nextGame < 31):
-
-            if curGame < 16:
-                roundVal = 1
-            elif curGame < 24:
-                roundVal = 2
-            elif curGame < 28:
-                roundVal = 3
+        next_game = 16
+        cur_game = 0
+        while (next_game < 31):
+            if cur_game < 16:
+                round_val = 1
+            elif cur_game < 24:
+                round_val = 2
+            elif cur_game < 28:
+                round_val = 3
             else:
-                roundVal = 4
+                round_val = 4
 
-            tA = flatBracket[i][curGame]
-            tB = flatBracket[i][curGame+1]
+            team_a = flat_bracket[i][cur_game]
+            team_b = flat_bracket[i][cur_game+1]
+            team_c = make_pick(
+                {team_a: data["Bracket"][team_a]},
+                {team_b: data["Bracket"][team_b]},
+                heuristic=data["Heuristics"],
+                round_num=round_val
+            )
+            flat_bracket[i][next_game] = team_c
+            next_game += 1
+            cur_game += 2
 
-            tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
+    # Finish the final four part of the bracket
+    round_val = 5
+    team_a = flat_bracket[0][30]
+    team_b = flat_bracket[1][30]
+    team_c = make_pick(
+        {team_a: data["Bracket"][team_a]},
+        {team_b: data["Bracket"][team_b]},
+        heuristic=data["Heuristics"],
+        round_num=round_val
+    )
+    flat_bracket[4][0] = team_c
 
-            flatBracket[i][nextGame] = tC
+    team_a = flat_bracket[2][30]
+    team_b = flat_bracket[3][30]
+    team_c = make_pick(
+        {team_a: data["Bracket"][team_a]},
+        {team_b: data["Bracket"][team_b]},
+        heuristic=data["Heuristics"],
+        round_num=round_val
+    )
+    flat_bracket[4][1] = team_c
 
-            nextGame += 1
-            curGame += 2
+    round_val = 6
+    team_a = flat_bracket[4][0]
+    team_b = flat_bracket[4][1]
+    team_c = make_pick(
+        {team_a: data["Bracket"][team_a]},
+        {team_b: data["Bracket"][team_b]},
+        heuristic=data["Heuristics"],
+        round_num=round_val
+    )
+    flat_bracket[4][2] = team_c
 
-    """ Finish the final four part of the bracket """
-    roundVal = 5
-    tA = flatBracket[0][30]
-    tB = flatBracket[1][30]
-    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
-    flatBracket[4][0] = tC
-
-    tA = flatBracket[2][30]
-    tB = flatBracket[3][30]
-    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
-    flatBracket[4][1] = tC
-
-    roundVal = 6
-    tA = flatBracket[4][0]
-    tB = flatBracket[4][1]
-    tC = MakePick(tA, tB, teamAFull=data["Bracket"][tA], teamBFull=data["Bracket"][tB], heuristic=data["Heuristics"], roundNum=roundVal)
-    flatBracket[4][2] = tC
-
-    return flatBracket
+    return flat_bracket
 
 
+def make_pick(team_a: dict, team_b: dict, heuristic: dict, round_num: int = 0) -> str:
+    """make_pick 
+ 
+    At its core, this uses the heuristic and algorithm chosen to make the winner pick of a game.
+    All inputs to this function are available for any configurable algorithm. "TeamXFull" variables
+    refer to entire JSON object of team, including rank and attributes, for customizable algorithm
+    use.
 
+    Args:
+        team_a (dict): sub content of the large json object revolving around one of the 2 teams
+        team_b (dict): sub content of the large json object revolving around the other of the 2
+                       teams
+        heuristic (dict): data to feed the chosen algorithm below
+        round_num (int, optional): for algorithms that require round number for information
 
-def MakePick(teamA: str, teamB: str, teamAFull = None, teamBFull = None, heuristic = None, roundNum: int = 0) -> str:
-    """ 
-        All inputs to this function are available for any configurable algorithm.
-        "TeamXFull" variables refer to entire JSON object of team, including rank and attributes, 
-        for customizable algorithm use.
+    Returns:
+        str: team name of the winner
     """
     
     ###################################################################
     ##      USER-DEFINED ALGO CONFIGURED BELOW                       ##
     ###################################################################
-    winner = RandomOnRank(teamA, teamB, teamAFull, teamBFull, heuristic)
-    #winner = TemplateName(teamA, teamB, teamAFull, teamBFull, heuristic, roundNum=roundNum)
+    winner = random_on_rank(team_a, team_b, heuristic)
+    #winner = template_name(team_a, team_b, heuristic, round_num=round_num)
 
     return winner

@@ -28,8 +28,8 @@ def dataframe_importer(list_of_files: list) -> dict:
         _df = pd.read_csv(df_path)
         if (_df.shape[0] > MAX_REGION):
             removals = []
-            for j in range(_df.shape[0]-MAX_REGION):
-                removals.append(j+MAX_REGION)
+            for j in range(_df.shape[0] - MAX_REGION):
+                removals.append(j + MAX_REGION)
             _df = _df.drop(removals)
         df_dict[df_names[i]] = _df
     

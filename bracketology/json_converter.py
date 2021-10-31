@@ -18,9 +18,7 @@
 #############################################################################
 """
 import json
-from pprint import pprint
 from pathlib import Path
-import os
 import datetime 
 
 import pandas as pd 
@@ -48,7 +46,7 @@ MAP_RANK_TO_INDEX = {
 def generate_json_bracket(bracket_csv_file: str,
                           json_schema_file: str,
                           attribute_dict: dict, 
-                          heuristic_dict: dict) -> str:
+                          heuristic_dict: dict) -> Path:
     """generate_json_bracket
 
     Combine attributes, the bracket csv, and heuristics into a data-heavy json file
@@ -56,10 +54,8 @@ def generate_json_bracket(bracket_csv_file: str,
     Args:
         bracket_csv_file (str): file path
         json_schema_file (str): file path for the template json file
-        attr_type_list (list, optional): list of attribute types. Defaults to None.
-        attr_df_list (list, optional): list of attribute files. Defaults to None.
-        hueristic_type_list (list, optional): list of heuristic types. Defaults to None.
-        heur_df_list (list, optional): list of heuristic files. Defaults to None.
+        attribute_dict (dict): dict of attribute content
+        heuristic_dict (dict): dict of heuristic content
 
     Returns:
         Path: output file path for the generated json file
@@ -69,8 +65,7 @@ def generate_json_bracket(bracket_csv_file: str,
 
     json_file_name = Path(output_dir / f'{bracket_csv_file.split(".")[0]}.json').resolve()
     schema_file = Path(f"schemas/{json_schema_file}").resolve()
-    with open(schema_file, encoding='utf-8') as dataFile:
-        data = json.loads(dataFile.read())
+    data = json.load(schema_file.open('r'))
 
     now = datetime.datetime.now()
 
@@ -144,19 +139,19 @@ def generate_json_bracket(bracket_csv_file: str,
 
 
 
-def ConvertToBracketLists2(jsonFile: str) -> list:
-    """ Imports the JSON file and exports teams in proper ranking order for analysis and bracket building """
+def convert_from_json_to_bracket_list(bracket_json: Path) -> list:
+    """convert_from_json_bracket_list
+    
+    Imports the JSON file and exports teams in proper ranking order for analysis and bracket
+    building
+    
+    Args:
+        bracket_json (Path): path to newly generated bracket json file with loaded content
 
-    with open(jsonFile, encoding='utf-8') as dataFile:
-        data = json.loads(dataFile.read())
-
+    Returns:
+        list: new bracket object list    
     """
-    length = 0
-    if 'Matchups' not in data["Bracket"]["Regions"]:
-        length = len(data["Bracket"]["Regions"])
-    else:
-        length = len(data["Bracket"]["Regions"]) - 2
-    """
+    data = json.load(bracket_json.open('r'))
 
     brackets = []
     for i in range(4):
@@ -168,7 +163,6 @@ def ConvertToBracketLists2(jsonFile: str) -> list:
 
     for i in range(4):
         for j in range(16):
-
             team = data["Keys"][i * 16 + j]
             rank = data["Bracket"][team]["Seed"]
             index = MAP_RANK_TO_INDEX[rank]
@@ -177,7 +171,5 @@ def ConvertToBracketLists2(jsonFile: str) -> list:
 
     finalFour = []
     brackets.append(finalFour)
-    #print(brackets)
     print("Create BracketLists... done.")
-
     return brackets

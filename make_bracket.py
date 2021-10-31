@@ -19,8 +19,9 @@
 #############################################################################
 """
 from bracketology.data_framer import dataframe_importer, heuristic_dataframe_importer
-from bracketology import bracket_builder, json_converter
-from engine import PopulateBracket 
+from bracketology.json_converter import convert_from_json_to_bracket_list, generate_json_bracket
+from bracketology.bracket_builder import build_dag, flat_bracket_creator
+from engine.engine import populate_bracket 
 
 ###################################################################
 ##      USER-DEFINED DATA CONFIGURED BELOW                       ##
@@ -55,16 +56,19 @@ attribute_dict = dataframe_importer(attribute_files)
 heuristic_dict = heuristic_dataframe_importer(heuristics)
 
 """ Generate the bracket JSON file with optional attributes """
-jsonFile = json_converter.generate_json_bracket(
-    "bracket_1.csv", "bracket_schema.json", attribute_dict, heuristic_dict
+json_file = generate_json_bracket(
+    "bracket_1.csv",
+    "bracket_schema.json",
+    attribute_dict,
+    heuristic_dict
 )
 
 """ Bracket conversion and building """
-bracket = json_converter.ConvertToBracketLists2(jsonFile)
-flatBrack = bracket_builder.flat_bracket_creator(bracket)
+bracket = convert_from_json_to_bracket_list(json_file)
+flat_bracket = flat_bracket_creator(bracket)
 
 """ Algorithms operate on flatBrack [and 'jsonFile' if 'atts' is not empty] HERE """
-filledBracket = PopulateBracket(flatBrack, jsonFile)
+filled_bracket = populate_bracket(flat_bracket, json_file)
 
 """ Output the DAG bracket """
-bracket_builder.BuildDAG(filledBracket)
+build_dag(filled_bracket)
