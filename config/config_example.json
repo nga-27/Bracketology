@@ -1,0 +1,6 @@
+{
+    "algorithm": {
+        "name": "randOnRank",
+        "path": "config/engines/default/random_on_rank.py"
+    }
+}

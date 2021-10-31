@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 ### ALGORITHM CHOICE(S) IMPORTS HERE ###
-from .random_on_rank import random_on_rank
+from config.default import random_on_rank
 # from .template_algorithm import template_name
 
 ########################################################################################

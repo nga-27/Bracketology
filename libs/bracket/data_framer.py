@@ -3,9 +3,19 @@
     Imports *.csv files and creates formatted dataframes for use in algorithms
 """
 from pathlib import Path
+import json
 import os
 
 import pandas as pd
+
+
+def import_configuration(config_path: Path) -> dict:
+    if not config_path.exists():
+        config_path = Path("config/config_example.json").resolve()
+    config_data = json.load(config_path.open('r'))
+    print(config_data)
+    return config_data
+    
 
 def dataframe_importer(list_of_files: list) -> dict:
     """dataframe_importer
