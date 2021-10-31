@@ -18,21 +18,21 @@ def dataframe_importer(list_of_files: list) -> dict:
     Returns:
         dict: key-values, where values are dataframes
     """
-    MAX_REGION = 16
+    MAX_REGION = 16 # pylint: disable=invalid-name
     df_dict = {}
-    
+
     df_names = [os.path.basename(path).split(".")[0] for path in list_of_files]
 
     for i, file_name in enumerate(list_of_files):
         df_path = Path(f"attributes/{file_name}").resolve()
         _df = pd.read_csv(df_path)
-        if (_df.shape[0] > MAX_REGION):
+        if _df.shape[0] > MAX_REGION:
             removals = []
             for j in range(_df.shape[0] - MAX_REGION):
                 removals.append(j + MAX_REGION)
             _df = _df.drop(removals)
         df_dict[df_names[i]] = _df
-    
+
     print("Data imported for Attributes... done.")
     return df_dict
 

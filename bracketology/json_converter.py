@@ -19,9 +19,9 @@
 """
 import json
 from pathlib import Path
-import datetime 
+import datetime
 
-import pandas as pd 
+import pandas as pd
 
 MAP_RANK_TO_INDEX = {
     "1": 0,
@@ -45,7 +45,7 @@ MAP_RANK_TO_INDEX = {
 
 def generate_json_bracket(bracket_csv_file: str,
                           json_schema_file: str,
-                          attribute_dict: dict, 
+                          attribute_dict: dict,
                           heuristic_dict: dict) -> Path:
     """generate_json_bracket
 
@@ -64,37 +64,32 @@ def generate_json_bracket(bracket_csv_file: str,
     output_dir.mkdir(exist_ok=True)
 
     json_file_name = Path(output_dir / f'{bracket_csv_file.split(".")[0]}.json').resolve()
-    schema_file = Path(f"schemas/{json_schema_file}").resolve()
-    data = json.load(schema_file.open('r'))
+    data = json.load(Path(f"schemas/{json_schema_file}").resolve().open('r'))
 
-    now = datetime.datetime.now()
+    data["DateModified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
     bracket_csv = pd.read_csv(bracket_csv_file)
-    bracket_columns = bracket_csv.columns
-    bracket_rows = bracket_csv.shape[0]
 
-    data["DateModified"] = now.strftime("%Y-%m-%d %H:%M")
-
-    # Skip column 0, as it is the seeding number 
-    for j in range(len(bracket_columns)-1):
+    # Skip column 0, as it is the seeding number
+    for j in range(len(bracket_csv.columns)-1):
         j += 1
-        region = str(bracket_columns[j])
+        region = str(bracket_csv.columns[j])
 
-        for i in range(bracket_rows):
+        for i in range(bracket_csv.shape[0]):
             data["Keys"].append(bracket_csv.values[i][j])
             data["Bracket"][bracket_csv.values[i][j]] = {
-                "Region": region, 
+                "Region": region,
                 "RegionKey": str(j-1),
                 "Seed": str(i+1),
                 "Attributes": {}
             }
-            
 
-    if (len(bracket_columns) - 1) == 4:
-        """ Standard NCAA bracketing of 4 regions """
+
+    if (len(bracket_csv.columns) - 1) == 4:
+        #  Standard NCAA bracketing of 4 regions
         data["Matchups"] = {
-            "SemiFinal1" : str(bracket_columns[1]) + " vs. " + str(bracket_columns[2]), 
-            "SemiFinal2" : str(bracket_columns[3]) + " vs. " + str(bracket_columns[4])
+            "SemiFinal1" : str(bracket_csv.columns[1]) + " vs. " + str(bracket_csv.columns[2]),
+            "SemiFinal2" : str(bracket_csv.columns[3]) + " vs. " + str(bracket_csv.columns[4])
         }
 
     ### Attribute addtions to the JSON file ###
@@ -103,9 +98,9 @@ def generate_json_bracket(bracket_csv_file: str,
         _df = attribute_dict[attribute_name]
 
         # bracketColumns SHOULD MATCH any attribute value!!!
-        for i in range(len(bracket_columns)-1):
+        for i in range(len(bracket_csv.columns)-1):
             i += 1
-            for k in range(bracket_rows):
+            for k in range(bracket_csv.shape[0]):
                 data["Bracket"][bracket_csv.values[k][i]]["Attributes"][attribute_name] = \
                     _df.values[k][i]
 
@@ -115,14 +110,9 @@ def generate_json_bracket(bracket_csv_file: str,
 
         _df = heuristic_dict[heuristic_name]
 
-        if (_df.shape[0] == 16):
-            type_of_heur = "H2H_table"
-        else:
-            type_of_heur = "SQL_table"
-
         data["Heuristics"][heuristic_name] = {
             "file": f"{heuristic_name}.csv",
-            "type": type_of_heur,
+            "type": "H2H_table" if _df.shape[0] == 16 else "SQL_Table",
             "array": []
         }
         data["Heuristics"]["Keys"].append(heuristic_name)
@@ -130,9 +120,7 @@ def generate_json_bracket(bracket_csv_file: str,
         for i in range(_df.shape[0]):
             data["Heuristics"][heuristic_name]["array"].append(list(_df.values[i]))
 
-    #print(data["Heuristics"]["randOnRank"]["array"][0][2])
-    json_fp = json_file_name.open('w')
-    json.dump(data, json_fp)
+    json.dump(data, json_file_name.open('w'))
 
     print(f"JSON file creation {json_file_name}... done.")
     return json_file_name
@@ -141,15 +129,15 @@ def generate_json_bracket(bracket_csv_file: str,
 
 def convert_from_json_to_bracket_list(bracket_json: Path) -> list:
     """convert_from_json_bracket_list
-    
+
     Imports the JSON file and exports teams in proper ranking order for analysis and bracket
     building
-    
+
     Args:
         bracket_json (Path): path to newly generated bracket json file with loaded content
 
     Returns:
-        list: new bracket object list    
+        list: new bracket object list
     """
     data = json.load(bracket_json.open('r'))
 
@@ -169,7 +157,7 @@ def convert_from_json_to_bracket_list(bracket_json: Path) -> list:
             reg = int(data["Bracket"][team]["RegionKey"])
             brackets[reg][index] = team
 
-    finalFour = []
-    brackets.append(finalFour)
+    final_four = []
+    brackets.append(final_four)
     print("Create BracketLists... done.")
     return brackets
