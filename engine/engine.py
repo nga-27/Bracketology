@@ -7,7 +7,7 @@ from pathlib import Path
 
 ### ALGORITHM CHOICE(S) IMPORTS HERE ###
 from .random_on_rank import random_on_rank
-from .template_algorithm import template_name
+# from .template_algorithm import template_name
 
 ########################################################################################
 ##          USER-DEFINED IMPORT CONFIGURED HERE (and farther below)                   ##
@@ -20,9 +20,9 @@ from .template_algorithm import template_name
 ###################################################################
 def populate_bracket(flat_bracket: list, json_file: Path) -> list:
     """populate_bracket
-    
+
     Uses MakePick and algorithms below to fill in bracket with picks
-    
+
     Args:
         flat_bracket (list): bracket object represented as a "flat" list
         json_file (Path): data-loaded json file for the bracket
@@ -32,11 +32,11 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
     """
     data = json.load(json_file.open('r'))
     round_val = 1
-    
+
     for i in range(4):
         next_game = 16
         cur_game = 0
-        while (next_game < 31):
+        while next_game < 31:
             if cur_game < 16:
                 round_val = 1
             elif cur_game < 24:
@@ -95,8 +95,8 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
 
 
 def make_pick(team_a: dict, team_b: dict, heuristic: dict, round_num: int = 0) -> str:
-    """make_pick 
- 
+    """make_pick
+
     At its core, this uses the heuristic and algorithm chosen to make the winner pick of a game.
     All inputs to this function are available for any configurable algorithm. "TeamXFull" variables
     refer to entire JSON object of team, including rank and attributes, for customizable algorithm
@@ -112,11 +112,13 @@ def make_pick(team_a: dict, team_b: dict, heuristic: dict, round_num: int = 0) -
     Returns:
         str: team name of the winner
     """
-    
     ###################################################################
     ##      USER-DEFINED ALGO CONFIGURED BELOW                       ##
     ###################################################################
-    winner = random_on_rank(team_a, team_b, heuristic)
+    winner = ""
+    if round_num < 15:
+        # There should never be more than 6? rounds. Only for compilation/pylint
+        winner = random_on_rank(team_a, team_b, heuristic)
     #winner = template_name(team_a, team_b, heuristic, round_num=round_num)
 
     return winner

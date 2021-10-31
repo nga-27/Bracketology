@@ -4,17 +4,17 @@
     picking algorithm. Use 'randOnRank.py' as a further example as to how to properly construct a
     picking algorithm.
 
-    Change 'template_name' to whatever the user wants to name the algorithm. 
+    Change 'template_name' to whatever the user wants to name the algorithm.
     Import the file into the 'engine.py' file as the 'randOnRank.py' file was imported and utilized.
 
 """
 
 def template_name(team_a: dict, team_b: dict, heuristic, round_num: int) -> str:
     """template_name
-    
+
     Generic template for algorithms. Below details how to use various aspects of the input field
     variables.
-    
+
     Args:
         team_a (dict): sub content of the large json object revolving around one of the 2 teams
         team_b (dict): sub content of the large json object revolving around the other of the 2
@@ -34,14 +34,16 @@ def template_name(team_a: dict, team_b: dict, heuristic, round_num: int) -> str:
 
     # 'team_a' and 'team_b' return all fields stored in 'Attributes'. Any user-supplied data from
     # attribute fields will be returned for each team and stored as these two variables.
-    
+
     # 'heuristic' field returns any user-supplied heuristics. Such heuristics can include data
     # metrics that can help an algorithm make a pick decision.
 
     ### DEFAULT FOR COMPILATION ###
-    if (team_a_seed <= team_b_seed):
+    print(f"round: {round_num}")
+    print(f"heuristic: {heuristic}")
+    if team_a_seed <= team_b_seed:
         winner = team_a_name
     else:
-        winner = team_b_name    
+        winner = team_b_name
 
     return winner
