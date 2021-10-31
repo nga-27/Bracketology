@@ -44,10 +44,10 @@ def bracketology(config_input_path: str):
     config_data = import_configuration(config_path)
 
     # Frame any attributes
-    attribute_dict = dataframe_importer(attribute_files)
+    attribute_dict = dataframe_importer(config_data)
 
     # Frame any heuristics (name of heuristic is derived from file name)
-    heuristic_dict = heuristic_dataframe_importer(heuristics)
+    heuristic_dict = heuristic_dataframe_importer(config_data)
 
     # Generate the bracket JSON file with optional attributes
     json_file = generate_json_bracket(
@@ -61,7 +61,7 @@ def bracketology(config_input_path: str):
     bracket = convert_from_json_to_bracket_list(json_file)
     flat_bracket = flat_bracket_creator(bracket)
 
-    # Algorithms operate on flatBrack [and 'jsonFile' if 'atts' is not empty] HERE
+    # Algorithms operate on flat_bracket [and 'jsonFile' if 'atts' is not empty] HERE
     filled_bracket = populate_bracket(flat_bracket, json_file)
 
     # Output the DAG bracket
