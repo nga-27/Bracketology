@@ -1,65 +1,59 @@
-"""
-#############################################################################
-#
-#   DataFramer
-#
-#   Imports *.csv files and creates formatted dataframes for use in algorithms
-#
-#
-#   Version:    0.1.0, 01-20-19
-#
-#   Nick Amell
-#
-#   Version History:
-#   -------------------------------------------------------------------------
-#   0.0.1, 12-16-18:    Initial Dataframe importing for attributes
-#   0.0.2, 01-12-19:    Updated dataframe importing for attributes, added heuristics
-#   0.1.0, 01-20-19:    Version 1.0 release
-#############################################################################
-"""
-import pandas as pd 
-import numpy as np 
+"""DataFramer
 
-def DataFrameLister(listOfFiles: list, listOfListsOfSheets: list=None):
-    """ Currently not supporting a list of sheets 
-            ASSUME .CSV for now
+    Imports *.csv files and creates formatted dataframes for use in algorithms
+"""
+from pathlib import Path
+
+import pandas as pd
+
+def dataframe_importer(list_of_files: list) -> list:
+    """dataframe_importer
+
+    Import numerical odds from various listed csv files
+
+    Args:
+        list_of_files (list): file names fitting the attribute template
+
+    Returns:
+        list: list of dataframes
     """
-    if not listOfFiles:
-        return []
-
     MAX_REGION = 16
-
-    listOfDFs = []
-    for i in range(len(listOfFiles)):
-        fName = "./attributes/" + listOfFiles[i]
-        df = pd.read_csv(fName)
-        if (df.shape[0] > MAX_REGION):
+    list_of_dfs = []
+    
+    for file_name in list_of_files:
+        df_path = Path(f"attributes/{file_name}").resolve()
+        _df = pd.read_csv(df_path)
+        if (_df.shape[0] > MAX_REGION):
             removals = []
-            for j in range(df.shape[0]-MAX_REGION):
+            for j in range(_df.shape[0]-MAX_REGION):
                 removals.append(j+MAX_REGION)
-            df = df.drop(removals)
-        listOfDFs.append(df)
+            _df = _df.drop(removals)
+        list_of_dfs.append(_df)
     
     print("Data imported for Attributes... done.")
-    return listOfDFs
+    return list_of_dfs
 
 
-def HeuristicDFLister(listOfFiles: list, listOfListOfSheets: list=None):
-    """ Currently not supporting a list of sheets 
-            ASSUME .CSV for now
+def heuristic_dataframe_importer(list_of_files: list) -> list:
+    """heuristic_dataframe_importer
+
+    Import numerical odds (head-to-head) from various listed csv files
+
+    Args:
+        list_of_files (list): list of those files
+
+    Returns:
+        list: list of dataframes
     """
-    if not listOfFiles:
-        return []
-
-    listOfDFs = []
-    for i in range(len(listOfFiles)):
-        fName = "./heuristics/" + listOfFiles[i]
-        df = pd.read_csv(fName)
+    list_of_dfs = []
+    for file_name in list_of_files:
+        df_path = Path(f"heuristics/{file_name}").resolve()
+        _df = pd.read_csv(df_path)
 
         ### For H2H_Table dataframes, drop the first column that holds the rank value ###
-        if df.shape[0] == 16:
-            df = df.drop(columns=[df.columns[0]])
-        listOfDFs.append(df)
+        if _df.shape[0] == 16:
+            _df = _df.drop(columns=[_df.columns[0]])
+        list_of_dfs.append(_df)
 
     print("Data imported for Heuristics... done.")
-    return listOfDFs
+    return list_of_dfs

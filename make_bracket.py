@@ -48,11 +48,13 @@ heur = ["randOnRank.csv", "template.csv"]
 ###################################################################
 ###################################################################
 
+print("\r\nStarting...\r\n")
+
 """ Frame any attributes """
-attDFs = data_framer.DataFrameLister(attfiles)
+attDFs = data_framer.dataframe_importer(attfiles)
 
 """ Frame any heuristics (name of heuristic is derived from file name) """
-heurDFs = data_framer.HeuristicDFLister(heur)
+heurDFs = data_framer.heuristic_dataframe_importer(heur)
 
 """ Generate the bracket JSON file with optional attributes """
 jsonFile = json_converter.ConvertToJSON2("bracket_1.csv", "bracket_schema.json", atts, attDFs, heur, heurDFs)
