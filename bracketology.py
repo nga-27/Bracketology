@@ -12,29 +12,6 @@ from libs.bracket.json_converter import convert_from_json_to_bracket_list, gener
 from libs.bracket.bracket_builder import build_dag, flat_bracket_creator
 from libs.engine.engine import populate_bracket
 
-###################################################################
-##      USER-DEFINED DATA CONFIGURED BELOW                       ##
-###################################################################
-
-#  Optional attributes and attribute files listed here. Examples:
-###################################################################
-# Examples:
-# attribute_files = ['confRecords2018.csv', 'overallRecords2018.csv']
-###################################################################
-
-attribute_files = []
-
-# Optional heuristics listed here
-heuristics = ["randOnRank.csv", "template.csv"]
-
-
-###################################################################
-###################################################################
-###################################################################
-##      DO NOT EDIT BELOW THIS SECTION!!! (Internal-use only)    ##
-###################################################################
-###################################################################
-###################################################################
 
 def bracketology(config_input_path: str):
     print("\r\nStarting...\r\n")
@@ -62,7 +39,7 @@ def bracketology(config_input_path: str):
     flat_bracket = flat_bracket_creator(bracket)
 
     # Algorithms operate on flat_bracket [and 'jsonFile' if 'atts' is not empty] HERE
-    filled_bracket = populate_bracket(flat_bracket, json_file)
+    filled_bracket = populate_bracket(flat_bracket, json_file, config_data)
 
     # Output the DAG bracket
     build_dag(filled_bracket)

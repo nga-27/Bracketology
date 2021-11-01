@@ -5,7 +5,7 @@
 """
 import random
 
-def random_on_rank(team_a: dict, team_b: dict, heuristic) -> str:
+def random_on_rank(**kwargs) -> str:
     """random_on_rank
 
     Using a random number and fixed random template (heuristic), determine winner by mapping
@@ -20,6 +20,10 @@ def random_on_rank(team_a: dict, team_b: dict, heuristic) -> str:
     Returns:
         str: team name of the winner
     """
+    team_a = kwargs.get('team_a')
+    team_b = kwargs.get('team_b')
+    heuristic = kwargs.get('heuristic')
+
     team_a_name = list(team_a.keys())[0]
     team_b_name = list(team_b.keys())[0]
     team_a_seed = int(team_a[team_a_name]["Seed"])

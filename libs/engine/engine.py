@@ -3,10 +3,12 @@
     Generic picking class that is fed by configurable algorithms.
 """
 import json
+import os
 from pathlib import Path
 
 ### ALGORITHM CHOICE(S) IMPORTS HERE ###
-from config.default.random_on_rank import random_on_rank
+import config
+# from config.default.random_on_rank import random_on_rank
 # from .template_algorithm import template_name
 
 ########################################################################################
@@ -18,7 +20,7 @@ from config.default.random_on_rank import random_on_rank
 ###################################################################
 ##      DO NOT EDIT BELOW THIS SECTION!!! (Internal-use only)    ##
 ###################################################################
-def populate_bracket(flat_bracket: list, json_file: Path) -> list:
+def populate_bracket(flat_bracket: list, json_file: Path, config_data: dict) -> list:
     """populate_bracket
 
     Uses MakePick and algorithms below to fill in bracket with picks
@@ -31,6 +33,13 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
         list: filled out bracket with picked winners, etc.
     """
     data = json.load(json_file.open('r'))
+    algorithm = config_data['algorithm']
+    split_path = algorithm['path'].split('/')
+    split_path[-1], _ = os.path.splitext(split_path[-1])
+    path_to_module = '.'.join(split_path)
+    exec(f"from {path_to_module} import {algorithm['function']}")
+    print(f"Running algorithm '{path_to_module}.{algorithm['function']}()'")
+
     round_val = 1
 
     for i in range(4):
@@ -52,6 +61,7 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
                 {team_a: data["Bracket"][team_a]},
                 {team_b: data["Bracket"][team_b]},
                 heuristic=data["Heuristics"],
+                algorithm_obj=algorithm,
                 round_num=round_val
             )
             flat_bracket[i][next_game] = team_c
@@ -66,6 +76,7 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
         {team_a: data["Bracket"][team_a]},
         {team_b: data["Bracket"][team_b]},
         heuristic=data["Heuristics"],
+        algorithm_obj=algorithm,
         round_num=round_val
     )
     flat_bracket[4][0] = team_c
@@ -76,6 +87,7 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
         {team_a: data["Bracket"][team_a]},
         {team_b: data["Bracket"][team_b]},
         heuristic=data["Heuristics"],
+        algorithm_obj=algorithm,
         round_num=round_val
     )
     flat_bracket[4][1] = team_c
@@ -87,6 +99,7 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
         {team_a: data["Bracket"][team_a]},
         {team_b: data["Bracket"][team_b]},
         heuristic=data["Heuristics"],
+        algorithm_obj=algorithm,
         round_num=round_val
     )
     flat_bracket[4][2] = team_c
@@ -94,7 +107,7 @@ def populate_bracket(flat_bracket: list, json_file: Path) -> list:
     return flat_bracket
 
 
-def make_pick(team_a: dict, team_b: dict, heuristic: dict, round_num: int = 0) -> str:
+def make_pick(team_a: dict, team_b: dict, heuristic: dict, algorithm_obj: dict, round_num: int = 0) -> str:
     """make_pick
 
     At its core, this uses the heuristic and algorithm chosen to make the winner pick of a game.
@@ -107,6 +120,7 @@ def make_pick(team_a: dict, team_b: dict, heuristic: dict, round_num: int = 0) -
         team_b (dict): sub content of the large json object revolving around the other of the 2
                        teams
         heuristic (dict): data to feed the chosen algorithm below
+        algorithm_obj (dict): dict that has algorithm storage information
         round_num (int, optional): for algorithms that require round number for information
 
     Returns:
@@ -118,7 +132,17 @@ def make_pick(team_a: dict, team_b: dict, heuristic: dict, round_num: int = 0) -
     winner = ""
     if round_num < 15:
         # There should never be more than 6? rounds. Only for compilation/pylint
-        winner = random_on_rank(team_a, team_b, heuristic)
-    #winner = template_name(team_a, team_b, heuristic, round_num=round_num)
+        split_path = algorithm_obj['path'].split('/')
+        split_path[-1], _ = os.path.splitext(split_path[-1])
+        path_to_module = '.'.join(split_path)
+        parameters = {
+            "team_a": team_a,
+            "team_b": team_b,
+            "heuristic": heuristic,
+            "round_num": round_num
+        }
 
+        eval_str = f"{path_to_module}.{algorithm_obj['function']}(**{parameters})"
+        winner = eval(eval_str)
+        
     return winner
