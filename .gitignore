@@ -3,3 +3,4 @@ outputs/
 venv/*
 
 config/custom/*
+.DS_Store
