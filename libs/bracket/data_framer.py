@@ -4,17 +4,26 @@
 """
 from pathlib import Path
 import json
-import os
 
 import pandas as pd
 
 
 def import_configuration(config_path: Path) -> dict:
+    """import_configuration
+
+    Function that pulls in the config.json file or config_example if config is not present
+
+    Args:
+        config_path (Path): config file path that is user-defined
+
+    Returns:
+        dict: config data object
+    """
     if not config_path.exists():
         config_path = Path("config/config_example.json").resolve()
     config_data = json.load(config_path.open('r'))
     return config_data
-    
+
 
 def dataframe_importer(config_data: dict) -> dict:
     """dataframe_importer

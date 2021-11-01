@@ -6,20 +6,9 @@ import json
 import os
 from pathlib import Path
 
-### ALGORITHM CHOICE(S) IMPORTS HERE ###
-import config
-# from config.default.random_on_rank import random_on_rank
-# from .template_algorithm import template_name
-
-########################################################################################
-##          USER-DEFINED IMPORT CONFIGURED HERE (and farther below)                   ##
-## Import custom algorithm (if not 'template_algorithm' above) here as examples above ##
-########################################################################################
+import config # pylint: disable=import-error,unused-import
 
 
-###################################################################
-##      DO NOT EDIT BELOW THIS SECTION!!! (Internal-use only)    ##
-###################################################################
 def populate_bracket(flat_bracket: list, json_file: Path, config_data: dict) -> list:
     """populate_bracket
 
@@ -28,16 +17,17 @@ def populate_bracket(flat_bracket: list, json_file: Path, config_data: dict) -> 
     Args:
         flat_bracket (list): bracket object represented as a "flat" list
         json_file (Path): data-loaded json file for the bracket
+        config_data (dict): user-defined configuration dictionary
 
     Returns:
         list: filled out bracket with picked winners, etc.
     """
     data = json.load(json_file.open('r'))
-    algorithm = config_data['algorithm']
+    algorithm = config_data['algorithms'][config_data['algorithm']]
     split_path = algorithm['path'].split('/')
     split_path[-1], _ = os.path.splitext(split_path[-1])
     path_to_module = '.'.join(split_path)
-    exec(f"from {path_to_module} import {algorithm['function']}")
+    exec(f"from {path_to_module} import {algorithm['function']}") # pylint: disable=exec-used
     print(f"Running algorithm '{path_to_module}.{algorithm['function']}()'")
 
     round_val = 1
@@ -107,7 +97,11 @@ def populate_bracket(flat_bracket: list, json_file: Path, config_data: dict) -> 
     return flat_bracket
 
 
-def make_pick(team_a: dict, team_b: dict, heuristic: dict, algorithm_obj: dict, round_num: int = 0) -> str:
+def make_pick(team_a: dict,
+              team_b: dict,
+              heuristic: dict,
+              algorithm_obj: dict,
+              round_num: int = 0) -> str:
     """make_pick
 
     At its core, this uses the heuristic and algorithm chosen to make the winner pick of a game.
@@ -143,6 +137,6 @@ def make_pick(team_a: dict, team_b: dict, heuristic: dict, algorithm_obj: dict, 
         }
 
         eval_str = f"{path_to_module}.{algorithm_obj['function']}(**{parameters})"
-        winner = eval(eval_str)
-        
+        winner = eval(eval_str) # pylint: disable=eval-used
+
     return winner

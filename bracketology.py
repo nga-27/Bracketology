@@ -14,16 +14,20 @@ from libs.engine.engine import populate_bracket
 
 
 def bracketology(config_input_path: str):
+    """bracketology
+
+    Main function that runs the team picking for the bracket bot
+
+    Args:
+        config_input_path (str): path for the user-defined custom picking algorithms, etc.
+    """
     print("\r\nStarting...\r\n")
 
     # Import the user-defined configuration.
     config_path = Path(config_input_path).resolve()
     config_data = import_configuration(config_path)
 
-    # Frame any attributes
     attribute_dict = dataframe_importer(config_data)
-
-    # Frame any heuristics (name of heuristic is derived from file name)
     heuristic_dict = heuristic_dataframe_importer(config_data)
 
     # Generate the bracket JSON file with optional attributes
@@ -37,8 +41,6 @@ def bracketology(config_input_path: str):
     # Bracket conversion and building
     bracket = convert_from_json_to_bracket_list(json_file)
     flat_bracket = flat_bracket_creator(bracket)
-
-    # Algorithms operate on flat_bracket [and 'jsonFile' if 'atts' is not empty] HERE
     filled_bracket = populate_bracket(flat_bracket, json_file, config_data)
 
     # Output the DAG bracket
