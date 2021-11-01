@@ -1,0 +1,16 @@
+{
+    "algorithm": "randOnRank",
+    "algorithms": {
+        "randOnRank": {
+            "path": "config/default/random_on_rank.py",
+            "function": "random_on_rank"
+        }
+    },
+    "attributes": [],
+    "heuristics": [
+        {
+            "name": "randOnRank",
+            "path": "config/default/randOnRank.csv"
+        }
+    ]
+}

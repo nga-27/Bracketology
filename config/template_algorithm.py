@@ -9,7 +9,7 @@
 
 """
 
-def template_name(team_a: dict, team_b: dict, heuristic, round_num: int) -> str:
+def template_name(**kwargs) -> str:
     """template_name
 
     Generic template for algorithms. Below details how to use various aspects of the input field
@@ -25,6 +25,10 @@ def template_name(team_a: dict, team_b: dict, heuristic, round_num: int) -> str:
     Returns:
         str: team name of the winner
     """
+    team_a = kwargs.get('team_a')
+    team_b = kwargs.get('team_b')
+    heuristic = kwargs.get('heuristic')
+    round_num = kwargs.get('round_num')
 
     # 'team_a_seed' and 'team_b_seed' are an integer of the team's seed.
     team_a_name = list(team_a.keys())[0]
