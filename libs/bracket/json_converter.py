@@ -17,6 +17,7 @@
 #   0.1.0, 01-20-19:    Version 1.0 release
 #############################################################################
 """
+import enum
 import json
 from pathlib import Path
 import datetime
@@ -92,7 +93,7 @@ def generate_json_bracket(bracket_csv_file: str,
             "SemiFinal2" : str(bracket_csv.columns[3]) + " vs. " + str(bracket_csv.columns[4])
         }
 
-    ### Attribute addtions to the JSON file ###
+    ### Attribute additions to the JSON file ###
     for attribute_name in attribute_dict:
         # Parse the df(s), store them in the json
         _df = attribute_dict[attribute_name]
@@ -113,12 +114,24 @@ def generate_json_bracket(bracket_csv_file: str,
         data["Heuristics"][heuristic_name] = {
             "file": f"{heuristic_name}.csv",
             "type": "H2H_table" if _df.shape[0] == 16 else "SQL_Table",
-            "array": []
+            "array": [],
+            "table": {}
         }
         data["Heuristics"]["Keys"].append(heuristic_name)
 
-        for i in range(_df.shape[0]):
-            data["Heuristics"][heuristic_name]["array"].append(list(_df.values[i]))
+        if data['Heuristics'][heuristic_name]['type'] == 'H2H_table':
+            for i in range(_df.shape[0]):
+                data["Heuristics"][heuristic_name]["array"].append(list(_df.values[i]))
+        else:
+            for i, team in enumerate(_df['Team']):
+                data["Heuristics"][heuristic_name]["table"][team.strip()] = {
+                    "round_1": _df['Round 1'][i],
+                    "round_2": _df["Round 2"][i],
+                    "round_3": _df["Round 3"][i],
+                    "round_4": _df["Round 4"][i],
+                    "round_5": _df["Round 5"][i],
+                    "round_6": _df["Round 6"][i]
+                }
 
     json.dump(data, json_file_name.open('w'))
 
