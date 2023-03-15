@@ -4,3 +4,4 @@ venv/*
 
 config/custom/*
 .DS_Store
+bracket_1.csv

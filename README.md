@@ -1,6 +1,6 @@
 # Bracketology: an NCAA Bracket Creator as a Custom AI/ML Pick Generator Platform
 
-Latest Version: `0.3.0`, `2021-10-31`
+Latest Version: `0.3.1`, `2022-03-14`
 
 This repo houses a script that allows the user to create python functions that can make picks for the NCAA March Madness tournament. The output of `bracketology.py` are three items:
 
@@ -14,10 +14,11 @@ This repo houses a script that allows the user to create python functions that c
 
 ## Usage
 1. Install above run environment and installations.
-2. Test the installation environment by running `python bracketology.py`. There are default configurations that should run regardless of customization or not.
-3. Generate the `config/custom/` directory if it does not exist yet.
-4. Load all custom content into the directory `config/custom/`. This includes any attribute data and heuristic data. To follow the appropriate templates, use the [attribute_template.csv](config/attribute_template.csv) template to make attribute data sets, and use the [heuristics_template](config/heuristics_template.csv) template to make heuristics data sets. In both cases, take the template and **SAVE AS** your new file. (Do not destroy the actually template files.)
-5. Utilize the [template_algorithm.py](config/template_algorithm.py) template to build out your algorithm of choice. You are welcome to create as many helper functions as you choose, however the main function called by the script must match the format.  `template_name` can and _should_ be changed to a name of choice. Recall that you can update this by doing **SAVE AS** on the template file.
+1. **Save As** `bracket_example.csv` to `bracket_1.csv`. This new file is stored in gitignore so can be updated annually.
+1. Test the installation environment by running `python bracketology.py`. There are default configurations that should run regardless of customization or not.
+1. Generate the `config/custom/` directory if it does not exist yet.
+1. Load all custom content into the directory `config/custom/`. This includes any attribute data and heuristic data. To follow the appropriate templates, use the [attribute_template.csv](config/attribute_template.csv) template to make attribute data sets, and use the [heuristics_template](config/heuristics_template.csv) template to make heuristics data sets. In both cases, take the template and **SAVE AS** your new file. (Do not destroy the actually template files.)
+1. Utilize the [template_algorithm.py](config/template_algorithm.py) template to build out your algorithm of choice. You are welcome to create as many helper functions as you choose, however the main function called by the script must match the format.  `template_name` can and _should_ be changed to a name of choice. Recall that you can update this by doing **SAVE AS** on the template file.
 
 ```python
 def template_name(**kwargs) -> str:
